@@ -1,5 +1,6 @@
 [default.files]
 fish = "~/.config/fish"
+nvim = "~/.config/nvim"
 
 [default.files.dotter]
 target = "~/.local/bin/dotter"
