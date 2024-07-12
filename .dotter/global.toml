@@ -1,0 +1,3 @@
+[default.files.dotter]
+target = "~/.local/bin/dotter"
+type = "symbolic"
