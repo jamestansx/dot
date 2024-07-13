@@ -17,7 +17,7 @@ vim.g.loaded_python3_provider = 0
 
 -- leader
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' ' -- '\\'
+vim.g.maplocalleader = ' '
 vim.keymap.set('', "<Space>", "<Nop>")
 
 -- ui
@@ -96,7 +96,7 @@ vim.opt.fillchars = {
     foldopen = "▽",
     foldsep = " ",
     foldclose = "▷",
-    msgsep = "⎻", -- U+23BB
+    -- msgsep = "⎻", -- U+23BB
 }
 
 -- search and replace
@@ -121,7 +121,7 @@ vim.opt.wildignore:append({
 vim.opt.diffopt:append({
     "iwhite",
     "indent-heuristic",
-    "algorithm:historgram",
+    "algorithm:histogram",
     "linematch:60",
 })
 
@@ -180,6 +180,10 @@ vim.keymap.set("n", "[Q", "<Cmd>cfirst<CR>")
 vim.keymap.set("n", "]Q", "<Cmd>clast<CR>")
 vim.keymap.set("n", "[q", [["\<Cmd\>" . v:count1 . "cprev" . "\<CR\>" . "zz"]], { expr = true })
 vim.keymap.set("n", "]q", [["\<Cmd\>" . v:count1 . "cnext" . "\<CR\>" . "zz"]], { expr = true })
+vim.keymap.set("n", "[A", "<Cmd>first<CR>")
+vim.keymap.set("n", "]A", "<Cmd>last<CR>")
+vim.keymap.set("n", "[a", [["\<Cmd\>" . v:count1 . "prev" . "\<CR\>"]], { expr = true })
+vim.keymap.set("n", "]a", [["\<Cmd\>" . v:count1 . "next" . "\<CR\>"]], { expr = true })
 vim.keymap.set({ "i", "s" }, "<Tab>", function()
     return vim.snippet.active({ direction = 1 }) and "<CMD>lua vim.snippet.jump(1)<CR>" or "<Tab>"
 end, { expr = true, silent = true })
