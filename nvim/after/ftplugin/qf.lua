@@ -1,6 +1,9 @@
 vim.wo.colorcolumn = ""
 
-vim.keymap.set("n", "q", "<C-W>c", { buffer = 0 })
+vim.keymap.set("n", "q", "<C-W>c", {
+    buffer = 0,
+    nowait = true,
+})
 vim.keymap.set("n", "D", function()
     local line = vim.fn.line(".")
     local col = vim.fn.col(".")

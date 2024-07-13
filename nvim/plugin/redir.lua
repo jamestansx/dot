@@ -37,13 +37,12 @@ end
 local function create_buf()
     local bufnr = vim.api.nvim_create_buf(false, true)
     assert(bufnr ~= 0, "Could not create a new buffer")
-    vim.api.nvim_set_option_value("ft", "Redir", { buf = bufnr })
+    vim.api.nvim_set_option_value("ft", "redir", { buf = bufnr })
 
     return bufnr
 end
 
 local function open_win(bufnr, vertical)
-    -- keymap q
     return vim.api.nvim_open_win(bufnr, false, {
         vertical = vertical or false,
         win = 0,
