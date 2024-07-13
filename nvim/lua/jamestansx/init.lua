@@ -94,7 +94,6 @@ vim.opt.fillchars = {
     foldopen = "▽",
     foldsep = " ",
     foldclose = "▷",
-    -- msgsep = "⎻", -- U+23BB
 }
 
 -- search and replace
