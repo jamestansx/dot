@@ -194,6 +194,8 @@ end, { expr = true, silent = true })
 -- nnoremap g!       :Git!<Space>
 -- nnoremap g<CR>    <CMD>Git<CR>
 -- nnoremap gq       mzgggqG`z
+-- black hole mapping
+-- system clipboard yank/paste
 
 _G.create_autocmd("TextYankPost", {
     group = "JamesTan",
@@ -271,7 +273,59 @@ if not vim.uv.fs_stat(lazypath) then
     })
 end
 
-local spec = {}
+local spec = {
+    {
+        "rebelot/kanagawa.nvim",
+        lazy = false,
+        priority = 1000,
+        config = function()
+            require("kanagawa").setup({
+                theme = "dragon",
+                background = { dark = "dragon" },
+                compile = true,
+                transparent = true,
+
+                commentStyle = { italic = false },
+                keywordStyle = { italic = false },
+                statmentStyle = { bold = false },
+
+                overrides = function(C)
+                    local T = C.theme
+                    local P = C.palette
+
+                    return {
+                        -- dark completion popup menu
+                        Pemnu = {
+                            fg = T.ui.shade0,
+                            bg = T.ui.bg_p1,
+                            blend = vim.o.pumblend,
+                        },
+                        PmenuSel = { fg = "NONE", bg = T.ui.bg_p2 },
+                        PmenuSbar = { bg = T.ui.bg_m1 },
+                        PmenuThumb = { bg = T.ui.bg_p2 },
+
+                        Boolean = { bold = false },
+                    }
+                end,
+            })
+
+            vim.cmd.colorscheme("kanagawa")
+        end,
+    },
+    {
+        "andymass/vim-matchup",
+        init = function()
+            vim.g.matchup_matchparen_offscreen = { method = "popup" }
+            vim.g.matchup_matchparen_deferred = 1
+        end,
+    },
+    {
+        "justinmk/vim-dirvish",
+        init = function()
+            vim.g.dirvish_mode = [[:sort /^.*[\/]/]]
+        end,
+    },
+}
 
 if package.loaded["lazy"] == nil then
     vim.opt.rtp:prepend(lazypath)
@@ -290,6 +344,9 @@ if package.loaded["lazy"] == nil then
                     "tarPlugin",
                     "zipPlugin",
                     "spellfile",
+                    "matchit",
+                    "matchparen",
+                    "netrwPlugin",
                 },
             },
         },
