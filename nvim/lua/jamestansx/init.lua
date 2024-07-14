@@ -77,8 +77,8 @@ vim.opt.showbreak = "↪"
 vim.opt.winblend = 10
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-vim.opt.scrolloff = 5
-vim.opt.sidescrolloff = 5
+vim.opt.scrolloff = 3
+vim.opt.sidescrolloff = 3
 
 -- list
 vim.opt.list = true
@@ -323,6 +323,92 @@ local spec = {
         "justinmk/vim-dirvish",
         init = function()
             vim.g.dirvish_mode = [[:sort /^.*[\/]/]]
+        end,
+    },
+    {
+        "hrsh7th/nvim-cmp",
+        version = false,
+        event = "InsertEnter",
+        cmd = { "CmpStatus" },
+        dependencies = {
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+        },
+        config = function()
+            local cmp = require("cmp")
+
+            cmp.setup({
+                completion = {
+                    completeopt = vim.o.completeopt,
+                    keyword_length = 2,
+                },
+                snippet = {
+                    expand = function(args)
+                        vim.snippet.expand(args.body)
+                    end,
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<C-E>"] = cmp.mapping.abort(),
+                    ["<C-Y>"] = cmp.mapping.confirm({ select = true }),
+                    ["<CR>"] = cmp.mapping.confirm({ select = false }),
+                    ["<C-F>"] = cmp.mapping.scroll_docs(5),
+                    ["<C-B>"] = cmp.mapping.scroll_docs(-5),
+                }),
+                sources = cmp.config.sources({
+                    { name = "path" },
+                    {
+                        name = "buffer",
+                        keyword_length = 5,
+                        option = {
+                            get_bufnrs = function()
+                                local bufs = {}
+                                local max_index_filesize = 1048576 -- 1MB
+                                for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                                    local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+                                    if vim.api.nvim_buf_is_loaded(buf)
+                                        and buftype ~= "nofile"
+                                        and buftype ~= "prompt" then
+                                        local loc = vim.api.nvim_buf_line_count(buf)
+                                        local offset = vim.api.nvim_buf_get_offset(buf, loc)
+                                        if offset <= max_index_filesize then
+                                            table.insert(bufs, buf)
+                                        end
+                                    end
+                                end
+
+                                return bufs
+                            end,
+                        },
+                    },
+                }),
+                sorting = {
+                    priority_weight = 3,
+                    comparators = {
+                        function(...) return require("cmp_buffer"):compare_locality(...) end,
+                        cmp.config.compare.offset,
+                        cmp.config.compare.exact,
+                        cmp.config.compare.score,
+                        -- https://github.com/lukas-reineke/cmp-under-comparator
+                        function(entry1, entry2)
+                            local _, entry1_under = entry1.completion_item.label:find("^_+")
+                            local _, entry2_under = entry2.completion_item.label:find("^_+")
+                            entry1_under = entry1_under or 0
+                            entry2_under = entry2_under or 0
+                            if entry1_under > entry2_under then
+                                return false
+                            elseif entry1_under < entry2_under then
+                                return true
+                            end
+                        end,
+                        cmp.config.compare.recently_used,
+                        cmp.config.compare.locality,
+                        cmp.config.compare.kind,
+                        cmp.config.compare.length,
+                        cmp.config.compare.order,
+                    },
+                },
+                experimental = { ghost_text = true },
+            })
         end,
     },
 }
