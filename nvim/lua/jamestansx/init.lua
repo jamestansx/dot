@@ -145,6 +145,9 @@ vim.keymap.set("n", "*", "*zz")
 vim.keymap.set("n", "#", "#zz")
 vim.keymap.set("n", "g*", "g*zz")
 
+vim.keymap.set("n", "<C-D>", "<C-D>zz")
+vim.keymap.set("n", "<C-U>", "<C-U>zz")
+
 -- no arrow keys
 vim.keymap.set('', "<Up>", "<Nop>")
 vim.keymap.set('', "<Down>", "<Nop>")
