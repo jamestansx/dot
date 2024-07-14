@@ -228,8 +228,8 @@ _G.create_autocmd("BufRead", {
             return
         end
 
-        local mark = vim.api.nvim_buf_get_mark(0, '"')[1]
-        if mark > 0 and mark <= vim.api.nvim_buf_line_count(0) then
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        if mark[1] > 0 and mark[1] <= vim.api.nvim_buf_line_count(0) then
             pcall(vim.api.nvim_win_set_cursor, 0, mark)
         end
     end,
@@ -270,11 +270,11 @@ if not vim.uv.fs_stat(lazypath) then
         lazypath,
     })
 end
-vim.opt.rtp:prepend(lazypath)
 
 local spec = {}
 
 if package.loaded["lazy"] == nil then
+    vim.opt.rtp:prepend(lazypath)
     require("lazy").setup({
         spec = spec,
         install = { colorscheme = { "kanagawa-dragon", "retrobox" } },
