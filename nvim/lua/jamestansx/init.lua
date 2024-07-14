@@ -295,7 +295,7 @@ local spec = {
 
                     return {
                         -- dark completion popup menu
-                        Pemnu = {
+                        Pmenu = {
                             fg = T.ui.shade0,
                             bg = T.ui.bg_p1,
                             blend = vim.o.pumblend,
