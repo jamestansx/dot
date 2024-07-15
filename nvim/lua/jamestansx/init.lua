@@ -1,5 +1,3 @@
--- TODO: packadd cfilter
-
 _G.create_autocmd = function(ev, opts)
     if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
         vim.api.nvim_create_augroup(opts.group, { clear = true })
