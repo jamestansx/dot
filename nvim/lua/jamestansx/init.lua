@@ -409,6 +409,19 @@ local spec = {
             })
         end,
     },
+    {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewFileHistory" },
+        opts = {
+            use_icons = false,
+            enhanced_diff_hl = true,
+            show_help_hints = false,
+            view = {
+                merge_tool = { layput = "diff3_mixed" },
+                file_panel = { listing_style = "list" },
+            },
+        },
+    },
 }
 
 if package.loaded["lazy"] == nil then
