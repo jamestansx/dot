@@ -7,6 +7,5 @@ require("jamestansx")
 --- picker
 --- lsp
 --- harpoon (or similar)
---- fugitive
 --- leap
 --- neorg

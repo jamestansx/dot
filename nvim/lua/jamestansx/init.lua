@@ -188,9 +188,6 @@ end, { expr = true, silent = true })
 
 -- TODO:
 -- keymap with 'yo<key>'
--- nnoremap g<Space> :Git<Space>
--- nnoremap g!       :Git!<Space>
--- nnoremap g<CR>    <CMD>Git<CR>
 -- nnoremap gq       mzgggqG`z
 -- black hole mapping
 -- system clipboard yank/paste
@@ -433,6 +430,15 @@ local spec = {
             vim.g.undotree_SetFocusWhenToggle = 1
             vim.g.undotree_HelpLine = 0
         end,
+    },
+    {
+        "tpope/vim-fugitive",
+        cmd = { "Git", "G" },
+        keys = {
+            { "g<Space>", ":Git<Space>", mode = "n" },
+            { "g!", ":Git!<Space>", mode = "n" },
+            { "g<CR>", "<CMD>Git<CR>", mode = "n" },
+        },
     },
 }
 
