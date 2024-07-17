@@ -207,7 +207,7 @@ _G.create_autocmd("BufNewFile", {
             buffer = 0,
             once = true,
             callback = function(args)
-                -- ignore URL pattern
+                -- ignore uri pattern
                 if not args.match:match("^%w+://") then
                     local file = vim.uv.fs_realpath(args.match) or args.match
                     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
