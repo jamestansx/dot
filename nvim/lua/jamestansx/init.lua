@@ -440,6 +440,52 @@ local spec = {
             { "g<CR>", "<CMD>Git<CR>", mode = "n" },
         },
     },
+    { "nvim-lua/plenary.nvim", lazy = true },
+    {
+        "ThePrimeagen/harpoon",
+        branch = "harpoon2",
+        keys = function()
+            local harpoon = require("harpoon")
+            local list = harpoon:list()
+
+            return {
+                { "<leader>a", function() list:add() end, mode = "n" },
+                { "yoh", function()
+                    harpoon.ui:toggle_quick_menu(list, {
+                        border = "solid",
+                        title_pos = "center",
+                        ui_fallback_width = 30,
+                        ui_width_ratio = 0.4,
+                        ui_max_width = 69,
+                    })
+                end, mode = "n" },
+
+                { "<leader>h", function() list:select(1) end, mode = "n" },
+                { "<leader>j", function() list:select(2) end, mode = "n" },
+                { "<leader>k", function() list:select(3) end, mode = "n" },
+                { "<leader>l", function() list:select(4) end, mode = "n" },
+
+                { "<leader>H", function() list:replace_at(1) end, mode = "n" },
+                { "<leader>J", function() list:replace_at(2) end, mode = "n" },
+                { "<leader>K", function() list:replace_at(3) end, mode = "n" },
+                { "<leader>L", function() list:replace_at(4) end, mode = "n" },
+            }
+        end,
+        config = function()
+            local harpoon = require("harpoon")
+            harpoon:setup({
+                settings = {
+                    save_on_toggle = true,
+                },
+            })
+
+            harpoon:extend({
+                UI_CREATE = function(cx)
+                    vim.api.nvim_set_option_value("number", false, { win = cx.win_id })
+                end,
+            })
+        end,
+    },
 }
 
 if package.loaded["lazy"] == nil then

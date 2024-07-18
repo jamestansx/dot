@@ -6,6 +6,5 @@ require("jamestansx")
 -- TODO:
 --- picker
 --- lsp
---- harpoon (or similar)
 --- leap
 --- neorg
