@@ -186,6 +186,15 @@ vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
     return vim.snippet.active({ direction = -1 }) and "<CMD>lua vim.snippet.jump(-1)<CR>" or "<S-Tab>"
 end, { expr = true, silent = true })
 
+vim.keymap.set("n", "<leader>f", function()
+    local fd = "fd --color=never --type file --hidden --follow --exclude .git"
+    local base = vim.fn.expand("%:.")
+    base = vim.fn.empty(base) == 0 and vim.fn.shellescape(base) or '.'
+    local cmd = string.format("%s | proximity-sort %s", fd, base)
+
+    MiniPick.builtin.cli({ command = { "sh", "-c", cmd } }, { source = { name = "Files" } })
+end)
+
 -- TODO:
 -- keymap with 'yo<key>'
 -- nnoremap gq       mzgggqG`z
@@ -484,6 +493,23 @@ local spec = {
                     vim.api.nvim_set_option_value("number", false, { win = cx.win_id })
                 end,
             })
+        end,
+    },
+    {
+        "echasnovski/mini.pick",
+        version = "*",
+        config = function()
+            require("mini.pick").setup({
+                mappings = {
+                    toggle_info = "<C-K>",
+                },
+                options = {
+                    content_from_bottom = true,
+                    use_cache = true,
+                },
+            })
+
+            vim.ui.select = MiniPick.ui_select
         end,
     },
 }
