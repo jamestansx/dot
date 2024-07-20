@@ -266,6 +266,14 @@ if not vim.uv.fs_stat(lazypath) then
     })
 end
 
+-- TODO:
+--- indent-blankline
+--- lsp (roll my own or lspconfig?)
+---- fidget
+---- conform (formatter)
+---- nvim-lint (linter)
+--- neorg
+--- statusline
 local spec = {
     {
         "rebelot/kanagawa.nvim",
@@ -518,6 +526,19 @@ local spec = {
             }
         end,
     },
+    {
+        "echasnovski/mini.align",
+        version = "*",
+        keys = { "gl", "gL" },
+        config = function()
+            require("mini.align").setup({
+                mappings = {
+                    start = "gl",
+                    start_with_preview = "gL",
+                },
+            })
+        end,
+    },
 }
 
 -- startup config
@@ -547,7 +568,6 @@ if package.loaded["lazy"] == nil then
     })
 
     -- load shada manually saves about 10ms
-    -- TODO: test if doing this will cause any problem
     local shada = vim.opt.shada
     vim.opt.shada = ''
     _G.create_autocmd("User", {
