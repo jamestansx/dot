@@ -274,6 +274,7 @@ end
 ---- nvim-lint (linter)
 --- neorg
 --- statusline
+--- db (dadbod)
 local spec = {
     {
         "rebelot/kanagawa.nvim",
