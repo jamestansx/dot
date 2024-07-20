@@ -5,5 +5,4 @@ require("jamestansx")
 
 -- TODO:
 --- lsp
---- leap
 --- neorg

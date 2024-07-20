@@ -501,6 +501,23 @@ local spec = {
             vim.ui.select = MiniPick.ui_select
         end,
     },
+    {
+        "ggandor/leap.nvim",
+        dependencies = { "tpope/vim-repeat" },
+        config = function()
+            local leap = require("leap")
+
+            leap.create_default_mappings()
+            vim.keymap.set({ "n", "o" }, "gS", require("leap.remote").action)
+
+            leap.opts.special_keys = {
+                next_target = "<Enter>",
+                prev_target = "<S-Enter>",
+                next_group = "<Space>",
+                prev_group = "<S-Space>",
+            }
+        end,
+    },
 }
 
 -- startup config
