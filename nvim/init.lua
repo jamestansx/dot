@@ -4,7 +4,6 @@ vim.loader.enable()
 require("jamestansx")
 
 -- TODO:
---- picker
 --- lsp
 --- leap
 --- neorg

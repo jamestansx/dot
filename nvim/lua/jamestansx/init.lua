@@ -199,7 +199,6 @@ vim.keymap.set("n", "<leader>g", "<Cmd>Pick grep_live<CR>")
 vim.keymap.set("n", "yop", "<Cmd>Pick resume<CR>")
 
 -- TODO:
--- keymap with 'yo<key>'
 -- nnoremap gq       mzgggqG`z
 -- black hole mapping
 -- system clipboard yank/paste
@@ -252,19 +251,6 @@ _G.create_autocmd("BufWritePre", {
         "gitrebase",
     },
     command = [[setlocal noundofile]],
-})
-
--- load shada manually saves about 10ms
--- TODO: test if doing this will cause any problem
-local shada = vim.opt.shada
-vim.opt.shada = ''
-_G.create_autocmd("User", {
-    group = "JamesTan",
-    pattern = "VeryLazy",
-    callback = function()
-        vim.opt.shada = shada
-        pcall(vim.cmd.rshada, { bang = true })
-    end,
 })
 
 -- lazy.nvim
@@ -517,6 +503,7 @@ local spec = {
     },
 }
 
+-- startup config
 if package.loaded["lazy"] == nil then
     vim.opt.rtp:prepend(lazypath)
     require("lazy").setup({
@@ -540,5 +527,19 @@ if package.loaded["lazy"] == nil then
                 },
             },
         },
+    })
+
+    -- load shada manually saves about 10ms
+    -- TODO: test if doing this will cause any problem
+    local shada = vim.opt.shada
+    vim.opt.shada = ''
+    _G.create_autocmd("User", {
+        group = "JamesTan",
+        pattern = "VeryLazy",
+        once = true,
+        callback = function()
+            vim.opt.shada = shada
+            pcall(vim.cmd.rshada, { bang = true })
+        end,
     })
 end
