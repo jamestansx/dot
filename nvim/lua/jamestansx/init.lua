@@ -1,3 +1,37 @@
+-- delay notify until fidget.nvim is loaded
+local notifs = {}
+local orig = vim.notify
+local temp = function(...)
+    table.insert(notifs, {...})
+end
+vim.notify = temp
+
+local timer = vim.uv.new_timer()
+local check = assert(vim.uv.new_check())
+local replay = function()
+    timer:stop()
+    check:stop()
+    vim.schedule(function()
+        for _, notif in ipairs(notifs) do
+            vim.notify(unpack(notif))
+        end
+    end)
+end
+
+check:start(function()
+    if vim.notify ~= temp then
+        replay()
+    end
+end)
+timer:start(100, 0, function()
+    if vim.notify == temp then
+        vim.notify = orig
+    end
+
+    replay()
+end)
+
+-- global functions
 _G.create_autocmd = function(ev, opts)
     if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
         vim.api.nvim_create_augroup(opts.group, { clear = true })
@@ -269,7 +303,6 @@ end
 -- TODO:
 --- indent-blankline
 --- lsp (roll my own or lspconfig?)
----- fidget
 ---- conform (formatter)
 ---- nvim-lint (linter)
 --- neorg
@@ -539,6 +572,28 @@ local spec = {
                 },
             })
         end,
+    },
+    {
+        "j-hui/fidget.nvim",
+        event = "UIEnter",
+        opts = {
+            progress = {
+                ignore_empty_message = true,
+                display = {
+                    render_limit = 7,
+                },
+            },
+            notification = {
+                history_size = 32,
+                -- TODO: do I want to replace builtin vim.notify with fidget?
+                override_vim_notify = true,
+                redirect = false,
+                window = {
+                    winblend = 0,
+                    align = "bottom",
+                },
+            },
+        },
     },
 }
 
