@@ -28,5 +28,5 @@ if vim.g.loaded_cfilter == nil then
     vim.g.loaded_cfilter = 1
 end
 
-vim.bo.errorformat = "%f|%l col %c| %m,%f|%l col %c-%k| %m"
+vim.bo.errorformat = "%f|%l col %c| %m,%f|%l col %c-%k| %m,%f|%l col %c-%k %t%*[^:]| %m"
 vim.keymap.set("n", "<C-S>", "<CMD>cgetbuffer|cclose|copen<CR>", { buffer = 0 })
