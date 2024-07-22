@@ -97,7 +97,7 @@ vim.opt.shiftround = true
 vim.opt.pumblend = 10
 vim.opt.pumheight = 5
 vim.opt.confirm = true
-vim.opt.completeopt = "menuone,noinsert,noselect,popup"
+vim.opt.completeopt = "menuone,noinsert,noselect,popup,fuzzy"
 
 -- wrap
 vim.opt.linebreak = true
@@ -168,6 +168,9 @@ end
 -- diagnostic
 vim.diagnostic.config({
     severity_sort = true,
+    jump = {
+        float = true,
+    },
 })
 
 -- center search result
@@ -213,12 +216,6 @@ vim.keymap.set("n", "[A", "<Cmd>first<CR>")
 vim.keymap.set("n", "]A", "<Cmd>last<CR>")
 vim.keymap.set("n", "[a", [["\<Cmd\>" . v:count1 . "prev" . "\<CR\>"]], { expr = true })
 vim.keymap.set("n", "]a", [["\<Cmd\>" . v:count1 . "next" . "\<CR\>"]], { expr = true })
-vim.keymap.set({ "i", "s" }, "<Tab>", function()
-    return vim.snippet.active({ direction = 1 }) and "<CMD>lua vim.snippet.jump(1)<CR>" or "<Tab>"
-end, { expr = true, silent = true })
-vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
-    return vim.snippet.active({ direction = -1 }) and "<CMD>lua vim.snippet.jump(-1)<CR>" or "<S-Tab>"
-end, { expr = true, silent = true })
 
 -- mini.pick
 vim.keymap.set("n", "<leader>f", function()
