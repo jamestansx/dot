@@ -1,3 +1,24 @@
+-- global functions
+_G.create_autocmd = function(ev, opts)
+    if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
+        vim.api.nvim_create_augroup(opts.group, { clear = true })
+    end
+    vim.api.nvim_create_autocmd(ev, opts)
+end
+
+_G.debounce = function(ms, callback)
+    local timer = vim.uv.new_timer()
+
+    return function(...)
+        local argv = {...}
+
+        timer:start(ms, 0, function()
+            timer:stop()
+            vim.schedule_wrap(callback)(unpack(argv))
+        end)
+    end
+end
+
 -- delay notify until fidget.nvim is loaded
 local notifs = {}
 local orig = vim.notify
@@ -30,14 +51,6 @@ timer:start(100, 0, function()
 
     replay()
 end)
-
--- global functions
-_G.create_autocmd = function(ev, opts)
-    if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
-        vim.api.nvim_create_augroup(opts.group, { clear = true })
-    end
-    vim.api.nvim_create_autocmd(ev, opts)
-end
 
 -- disable remote plugin providers
 vim.g.loaded_node_provider = 0
