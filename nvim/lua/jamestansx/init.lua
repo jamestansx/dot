@@ -6,51 +6,41 @@ _G.create_autocmd = function(ev, opts)
     vim.api.nvim_create_autocmd(ev, opts)
 end
 
-_G.debounce = function(ms, callback)
-    local timer = vim.uv.new_timer()
-
-    return function(...)
-        local argv = {...}
-
-        timer:start(ms, 0, function()
-            timer:stop()
-            vim.schedule_wrap(callback)(unpack(argv))
-        end)
-    end
-end
-
 -- delay notify until fidget.nvim is loaded
-local notifs = {}
-local orig = vim.notify
-local temp = function(...)
-    table.insert(notifs, {...})
-end
-vim.notify = temp
+local function lazy_notify()
+    local notifs = {}
+    local orig = vim.notify
+    vim.notify = function(...)
+        table.insert(notifs, {...})
+    end
 
-local timer = vim.uv.new_timer()
-local check = assert(vim.uv.new_check())
-local replay = function()
-    timer:stop()
-    check:stop()
-    vim.schedule(function()
+    local timer = vim.uv.new_timer()
+    local check = assert(vim.uv.new_check())
+    local playback = function()
         for _, notif in ipairs(notifs) do
             vim.notify(unpack(notif))
         end
+    end
+    local replay = function()
+        timer:stop()
+        check:stop()
+        vim.schedule_wrap(playback)()
+    end
+
+    check:start(function()
+        if package.loaded["fidget"] then
+            replay()
+        end
+    end)
+    timer:start(100, 0, function()
+        if not package.loaded["fidget"] then
+            vim.notify = orig
+        end
+        replay()
     end)
 end
 
-check:start(function()
-    if vim.notify ~= temp then
-        replay()
-    end
-end)
-timer:start(100, 0, function()
-    if vim.notify == temp then
-        vim.notify = orig
-    end
-
-    replay()
-end)
+lazy_notify()
 
 -- disable remote plugin providers
 vim.g.loaded_node_provider = 0
