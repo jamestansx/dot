@@ -428,7 +428,7 @@ local spec = {
                                 local bufs = {}
                                 local max_index_filesize = 1048576 -- 1MB
                                 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                                    local buftype = vim.api.nvim_get_optioin_value("buftype", { buf = buf })
+                                    local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
                                     if vim.api.nvim_buf_is_loaded(buf)
                                         and buftype ~= "nofile"
                                         and buftype ~= "prompt" then

@@ -49,19 +49,19 @@ local function open_win(bufnr, vertical)
     })
 end
 
-local function redir(args)
-    local cmd = args.args
-    local stderr = args.bang
-    local vertical = args.smods.vertical
+local function redir(kwargs)
+    local cmd = kwargs.args
+    local stderr = kwargs.bang
+    local vertical = kwargs.smods.vertical
 
     local bufnr = create_buf()
     local winid = open_win(bufnr, vertical)
 
     if cmd:sub(1, 1) == "!" then
         local input
-        if args.range ~= 0 then
-            local l1 = args.line1 - 1
-            local l2 = args.line2
+        if kwargs.range ~= 0 then
+            local l1 = kwargs.line1 - 1
+            local l2 = kwargs.line2
             input = vim.api.nvim_buf_get_lines(0, l1, l2, true)
             input = table.concat(input, "\n")
         end
