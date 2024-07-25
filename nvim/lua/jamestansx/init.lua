@@ -315,6 +315,24 @@ _G.create_autocmd("BufWritePre", {
     command = [[setlocal noundofile]],
 })
 
+_G.create_autocmd("LspAttach", {
+    group = "JamesTan",
+    callback = function(args)
+        local buf = args.buf
+
+        vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+            vim.lsp.handlers.signature_help, {
+                anchor_bias = "above",
+            }
+        )
+        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+            vim.lsp.handlers.hover, {
+                anchor_bias = "above",
+            }
+        )
+    end,
+})
+
 -- lazy.nvim
 local lazypath = string.format("%s/lazy/lazy.nvim", vim.fn.stdpath("data"))
 if not vim.uv.fs_stat(lazypath) then
@@ -330,7 +348,6 @@ end
 
 -- TODO:
 --- indent-blankline
---- lsp (roll my own or lspconfig?)
 ---- conform (formatter)
 ---- nvim-lint (linter)
 --- neorg
