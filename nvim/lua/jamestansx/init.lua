@@ -51,6 +51,8 @@ local function lazy_notify()
     local replay = function()
         timer:stop()
         check:stop()
+        timer:close()
+        check:close()
         vim.schedule_wrap(playback)()
     end
 
