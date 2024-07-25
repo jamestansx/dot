@@ -6,6 +6,33 @@ _G.create_autocmd = function(ev, opts)
     vim.api.nvim_create_autocmd(ev, opts)
 end
 
+_G.lspconfig = function(name, config)
+    if config.disable then
+        return
+    end
+
+    config.name = name
+    _G.create_autocmd("FileType", {
+        pattern = config.filetypes,
+        group = "JamesTan",
+        callback = function(args)
+            if vim.bo[args.buf].buftype == "nofile" then
+                return
+            end
+
+            config.capabilities = vim.lsp.protocol.make_client_capabilities()
+            config.capabilities = vim.tbl_deep_extend("force", config.capabilities, require("cmp_nvim_lsp").default_capabilities())
+
+            config.markers = config.markers or {}
+            table.insert(config.markers, ".git")
+            config.root_dir = vim.fs.root(args.buf, config.markers)
+            vim.notify(config.root_dir)
+
+            vim.lsp.start(config)
+        end,
+    })
+end
+
 -- delay notify until fidget.nvim is loaded
 local function lazy_notify()
     local notifs = {}
@@ -14,7 +41,7 @@ local function lazy_notify()
         table.insert(notifs, {...})
     end
 
-    local timer = vim.uv.new_timer()
+    local timer = assert(vim.uv.new_timer())
     local check = assert(vim.uv.new_check())
     local playback = function()
         for _, notif in ipairs(notifs) do
@@ -39,7 +66,6 @@ local function lazy_notify()
         replay()
     end)
 end
-
 lazy_notify()
 
 -- disable remote plugin providers
@@ -368,6 +394,7 @@ local spec = {
         dependencies = {
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
+            "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
             local cmp = require("cmp")
@@ -390,7 +417,9 @@ local spec = {
                     ["<C-B>"] = cmp.mapping.scroll_docs(-5),
                 }),
                 sources = cmp.config.sources({
+                    { name = "nvim_lsp" },
                     { name = "path" },
+                },{
                     {
                         name = "buffer",
                         keyword_length = 5,
@@ -399,7 +428,7 @@ local spec = {
                                 local bufs = {}
                                 local max_index_filesize = 1048576 -- 1MB
                                 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                                    local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+                                    local buftype = vim.api.nvim_get_optioin_value("buftype", { buf = buf })
                                     if vim.api.nvim_buf_is_loaded(buf)
                                         and buftype ~= "nofile"
                                         and buftype ~= "prompt" then
