@@ -21,12 +21,12 @@ _G.lspconfig = function(name, config)
             end
 
             config.capabilities = vim.lsp.protocol.make_client_capabilities()
-            config.capabilities = vim.tbl_deep_extend("force", config.capabilities, require("cmp_nvim_lsp").default_capabilities())
+            local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+            config.capabilities = vim.tbl_deep_extend("force", config.capabilities, lsp_capabilities)
 
             config.markers = config.markers or {}
             table.insert(config.markers, ".git")
             config.root_dir = vim.fs.root(args.buf, config.markers)
-            vim.notify(config.root_dir)
 
             vim.lsp.start(config)
         end,
