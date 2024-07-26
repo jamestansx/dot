@@ -1,4 +1,3 @@
--- global functions
 _G.create_autocmd = function(ev, opts)
     if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
         vim.api.nvim_create_augroup(opts.group, { clear = true })
@@ -21,8 +20,8 @@ _G.lspconfig = function(name, config)
             end
 
             config.capabilities = vim.lsp.protocol.make_client_capabilities()
-            local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
-            config.capabilities = vim.tbl_deep_extend("force", config.capabilities, lsp_capabilities)
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            config.capabilities = vim.tbl_deep_extend("force", config.capabilities, capabilities)
 
             config.markers = config.markers or {}
             table.insert(config.markers, ".git")
@@ -34,41 +33,38 @@ _G.lspconfig = function(name, config)
 end
 
 -- delay notify until fidget.nvim is loaded
-local function lazy_notify()
-    local notifs = {}
-    local orig = vim.notify
-    vim.notify = function(...)
-        table.insert(notifs, {...})
-    end
-
-    local timer = assert(vim.uv.new_timer())
-    local check = assert(vim.uv.new_check())
-    local playback = function()
-        for _, notif in ipairs(notifs) do
-            vim.notify(unpack(notif))
-        end
-    end
-    local replay = function()
-        timer:stop()
-        check:stop()
-        timer:close()
-        check:close()
-        vim.schedule_wrap(playback)()
-    end
-
-    check:start(function()
-        if package.loaded["fidget"] then
-            replay()
-        end
-    end)
-    timer:start(100, 0, function()
-        if not package.loaded["fidget"] then
-            vim.notify = orig
-        end
-        replay()
-    end)
+local notifs = {}
+local orig = vim.notify
+vim.notify = function(...)
+    table.insert(notifs, {...})
 end
-lazy_notify()
+
+local timer = assert(vim.uv.new_timer())
+local check = assert(vim.uv.new_check())
+local playback = vim.schedule_wrap(function()
+    for _, notif in ipairs(notifs) do
+        vim.notify(unpack(notif))
+    end
+end)
+local replay = function()
+    timer:stop()
+    timer:close()
+    check:stop()
+    check:close()
+    playback()
+end
+
+check:start(function()
+    if package.loaded["fidget"] then
+        replay()
+    end
+end)
+timer:start(100, 0, function()
+    if not package.loaded["fidget"] then
+        vim.notify = orig
+    end
+    replay()
+end)
 
 -- disable remote plugin providers
 vim.g.loaded_node_provider = 0
@@ -99,10 +95,8 @@ vim.opt.shada:append({
     "r/tmp/",
     "rfugitive", "rterm:", "rhealth",
 })
----
 vim.opt.exrc = true
 vim.opt.modelines = 1
----
 
 -- statuscolumn
 vim.opt.number = true
@@ -238,15 +232,15 @@ vim.keymap.set({"n", "x"}, "k", [[v:count || mode(1)[0:1] == "no" ? "k" : "gk"]]
 vim.keymap.set("n", "[<Space>", [[<CMD>put!=repeat(nr2char(10), v:count1)<BAR>']+1<CR>]])
 vim.keymap.set("n", "[<Space>", [[<CMD>put =repeat(nr2char(10), v:count1)<BAR>'[-1<CR>]])
 
--- TODO: remove once v0.11 has landed
+-- NOTE: wait for https://github.com/neovim/neovim/pull/28525 to be merged
 vim.keymap.set("n", "[Q", "<Cmd>cfirst<CR>")
 vim.keymap.set("n", "]Q", "<Cmd>clast<CR>")
-vim.keymap.set("n", "[q", [["\<Cmd\>" . v:count1 . "cprev" . "\<CR\>" . "zz"]], { expr = true })
-vim.keymap.set("n", "]q", [["\<Cmd\>" . v:count1 . "cnext" . "\<CR\>" . "zz"]], { expr = true })
+vim.keymap.set("n", "[q", [["\<Cmd\>".v:count1."cprev"."\<CR\>"."zz"]], { expr = true })
+vim.keymap.set("n", "]q", [["\<Cmd\>".v:count1."cnext"."\<CR\>"."zz"]], { expr = true })
 vim.keymap.set("n", "[A", "<Cmd>first<CR>")
 vim.keymap.set("n", "]A", "<Cmd>last<CR>")
-vim.keymap.set("n", "[a", [["\<Cmd\>" . v:count1 . "prev" . "\<CR\>"]], { expr = true })
-vim.keymap.set("n", "]a", [["\<Cmd\>" . v:count1 . "next" . "\<CR\>"]], { expr = true })
+vim.keymap.set("n", "[a", [["\<Cmd\>".v:count1."prev"."\<CR\>"]], { expr = true })
+vim.keymap.set("n", "]a", [["\<Cmd\>".v:count1."next"."\<CR\>"]], { expr = true })
 
 -- mini.pick
 vim.keymap.set("n", "<leader>f", function()
@@ -261,7 +255,7 @@ vim.keymap.set("n", "<leader>g", "<Cmd>Pick grep_live<CR>")
 vim.keymap.set("n", "yop", "<Cmd>Pick resume<CR>")
 
 -- TODO:
--- nnoremap gq       mzgggqG`z
+-- nnoremap gq mzgggqG`z (conform.nvim)
 -- black hole mapping
 -- system clipboard yank/paste
 
@@ -319,18 +313,23 @@ _G.create_autocmd("LspAttach", {
     group = "JamesTan",
     callback = function(args)
         local buf = args.buf
+        local handlers = vim.lsp.handlers
 
-        vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-            vim.lsp.handlers.signature_help, {
-                anchor_bias = "above",
-            }
-        )
-        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-            vim.lsp.handlers.hover, {
-                anchor_bias = "above",
-            }
-        )
+        handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, {
+            anchor_bias = "above",
+        })
+        handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, {
+            anchor_bias = "above",
+        })
     end,
+})
+
+_G.lspconfig("tsserver", {
+    cmd = { "typescript-language-server", "--stdio" },
+    filetypes = { "javascript" },
+    init_options = {
+        hostInfo = "neovim",
+    },
 })
 
 -- lazy.nvim
@@ -437,8 +436,8 @@ local spec = {
                 }),
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" },
-                    { name = "path" },
                 },{
+                    { name = "path" },
                     {
                         name = "buffer",
                         keyword_length = 5,
@@ -446,8 +445,11 @@ local spec = {
                             get_bufnrs = function()
                                 local bufs = {}
                                 local max_index_filesize = 1048576 -- 1MB
+
                                 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                                    local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
+                                    local buftype = vim.api.nvim_get_option_value("buftype", {
+                                        buf = buf,
+                                    })
                                     if vim.api.nvim_buf_is_loaded(buf)
                                         and buftype ~= "nofile"
                                         and buftype ~= "prompt" then

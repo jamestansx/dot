@@ -17,8 +17,8 @@ vim.api.nvim_create_user_command("LspRestart", function(kwargs)
     local bufnr = vim.api.nvim_get_current_buf()
     local name = kwargs.fargs[1]
     local clients = vim.lsp.get_clients({ bufnr = bufnr, name = name })
-    local detached_clients = {}
 
+    local detached_clients = {}
     for _, client in ipairs(clients) do
         client.stop(kwargs.bang)
         detached_clients[client.name] = {

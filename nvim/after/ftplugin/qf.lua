@@ -1,6 +1,6 @@
 vim.wo.colorcolumn = ''
 
-vim.keymap.set("n", "q", ":q!<CR>", {
+vim.keymap.set("n", "q", "<CMD>quit!<CR>", {
     buffer = 0,
     nowait = true,
 })
