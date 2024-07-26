@@ -28,6 +28,7 @@ _G.lspconfig = function(name, config)
             config.root_dir = vim.fs.root(args.buf, config.markers)
 
             vim.lsp.start(config)
+            vim.lsp.log.set_format_func(vim.inspect)
         end,
     })
 end

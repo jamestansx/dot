@@ -53,8 +53,7 @@ vim.api.nvim_create_user_command("LspStop", function(kwargs)
     end
 end, { nargs = "*", complete = lsp_client_complete, bang = true })
 
-local path = vim.lsp.get_log_path()
-vim.lsp.log.set_format_func(vim.inspect)
 vim.api.nvim_create_user_command("LspLog", function()
+    local path = vim.lsp.get_log_path()
     vim.cmd.split(path)
 end, {})
