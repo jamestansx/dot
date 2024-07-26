@@ -1,3 +1,6 @@
+---------------------------------------------------------------------------------------------------
+--- global functions
+---------------------------------------------------------------------------------------------------
 _G.create_autocmd = function(ev, opts)
     if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
         vim.api.nvim_create_augroup(opts.group, { clear = true })
@@ -33,7 +36,9 @@ _G.lspconfig = function(name, config)
     })
 end
 
--- delay notify until fidget.nvim is loaded
+---------------------------------------------------------------------------------------------------
+--- delay notify until fidget.nvim is loaded
+---------------------------------------------------------------------------------------------------
 local notifs = {}
 local orig = vim.notify
 vim.notify = function(...)
@@ -67,6 +72,9 @@ timer:start(100, 0, function()
     replay()
 end)
 
+---------------------------------------------------------------------------------------------------
+--- options
+---------------------------------------------------------------------------------------------------
 -- disable remote plugin providers
 vim.g.loaded_node_provider = 0
 vim.g.loaded_perl_provider = 0
@@ -199,6 +207,9 @@ vim.diagnostic.config({
     },
 })
 
+---------------------------------------------------------------------------------------------------
+--- keymap
+---------------------------------------------------------------------------------------------------
 -- center search result
 vim.keymap.set("n", "n", "nzz")
 vim.keymap.set("n", "N", "Nzz")
@@ -260,6 +271,9 @@ vim.keymap.set("n", "yop", "<Cmd>Pick resume<CR>")
 -- black hole mapping
 -- system clipboard yank/paste
 
+---------------------------------------------------------------------------------------------------
+--- autocommands
+---------------------------------------------------------------------------------------------------
 _G.create_autocmd("TextYankPost", {
     group = "JamesTan",
     callback = function()
@@ -310,6 +324,9 @@ _G.create_autocmd("BufWritePre", {
     command = [[setlocal noundofile]],
 })
 
+---------------------------------------------------------------------------------------------------
+--- lsp
+---------------------------------------------------------------------------------------------------
 _G.create_autocmd("LspAttach", {
     group = "JamesTan",
     callback = function(args)
@@ -333,7 +350,9 @@ _G.lspconfig("tsserver", {
     },
 })
 
--- lazy.nvim
+---------------------------------------------------------------------------------------------------
+--- lazy.nvim
+---------------------------------------------------------------------------------------------------
 local lazypath = string.format("%s/lazy/lazy.nvim", vim.fn.stdpath("data"))
 if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
