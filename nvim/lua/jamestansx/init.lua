@@ -362,7 +362,7 @@ if not vim.uv.fs_stat(lazypath) then
         "--branch=stable",
         "https://github.com/folke/lazy.nvim.git",
         lazypath,
-    })
+    }):wait()
 end
 
 -- TODO:
