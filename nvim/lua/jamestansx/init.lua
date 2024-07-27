@@ -242,7 +242,7 @@ vim.keymap.set({"n", "x"}, "k", [[v:count || mode(1)[0:1] == "no" ? "k" : "gk"]]
 
 -- unimpaired style
 vim.keymap.set("n", "[<Space>", [[<CMD>put!=repeat(nr2char(10), v:count1)<BAR>']+1<CR>]])
-vim.keymap.set("n", "[<Space>", [[<CMD>put =repeat(nr2char(10), v:count1)<BAR>'[-1<CR>]])
+vim.keymap.set("n", "]<Space>", [[<CMD>put =repeat(nr2char(10), v:count1)<BAR>'[-1<CR>]])
 
 -- NOTE: wait for https://github.com/neovim/neovim/pull/28525 to be merged
 vim.keymap.set("n", "[Q", "<Cmd>cfirst<CR>")
