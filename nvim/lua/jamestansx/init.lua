@@ -413,7 +413,11 @@ local spec = {
     },
     {
         "andymass/vim-matchup",
+        event = "BufReadPost",
         init = function()
+            -- XXX: enable both 'popup' and 'deferred' would cause offscreen not able to
+            -- show up properly on split windows.
+            -- see https://github.com/andymass/vim-matchup/issues/325#issuecomment-1973466079
             vim.g.matchup_matchparen_offscreen = { method = "popup" }
             vim.g.matchup_matchparen_deferred = 1
         end,
