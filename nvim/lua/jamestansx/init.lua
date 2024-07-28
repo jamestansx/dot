@@ -224,8 +224,8 @@ vim.keymap.set('', "<Left>", "<Nop>")
 vim.keymap.set('', "<Right>", "<Nop>")
 
 -- home row
-vim.keymap.set("n", "H", "^")
-vim.keymap.set("n", "L", "$")
+vim.keymap.set({ "n", "x", "o" }, "H", "^")
+vim.keymap.set({ "n", "x", "o" }, "L", "$")
 
 vim.keymap.set("x", "<", "<gv")
 vim.keymap.set("x", ">", ">gv")
