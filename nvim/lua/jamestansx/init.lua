@@ -652,7 +652,6 @@ local spec = {
         event = "UIEnter",
         opts = {
             progress = {
-                ignore_empty_message = true,
                 display = {
                     render_limit = 7,
                 },
