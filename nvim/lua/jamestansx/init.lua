@@ -73,8 +73,8 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- ui
-vim.opt.title = true
-vim.opt.titlestring = [[%{getcwd().' ('.getpid().')'}]]
+-- vim.opt.title = true
+-- vim.opt.titlestring = [[%{getcwd().' ('.getpid().')'}]]
 vim.opt.colorcolumn = "+1"
 vim.opt.shortmess:append("IAca")
 
@@ -249,11 +249,6 @@ end)
 vim.keymap.set("n", "<leader>g", "<Cmd>Pick grep_live<CR>")
 vim.keymap.set("n", "yop", "<Cmd>Pick resume<CR>")
 
--- TODO:
--- nnoremap gq mzgggqG`z (conform.nvim)
--- black hole mapping
--- system clipboard yank/paste
-
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = grp,
     callback = function()
@@ -319,13 +314,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end,
 })
 
--- TODO:
---- indent-blankline
----- conform (formatter)
----- nvim-lint (linter)
---- neorg
---- statusline
---- db (dadbod)
 local spec = {
     {
         "rebelot/kanagawa.nvim",
@@ -675,3 +663,27 @@ if package.loaded["lazy"] == nil then
         end,
     })
 end
+
+-- TODO:
+-- the basic neovim setup is done, left the following stuffs to be done.
+--
+-- keymap:
+-- - formatting keymap
+--   nnoremap gq mzgggqG`z
+--   or require("conform").format()
+--   or going with autocmd with conform.nvim
+-- - black hole mapping (delete)
+-- - system clipboard yank/paste
+--
+-- plugins:
+-- - indent-blankline
+-- - conform (formatter)
+-- - nvim-lint (linter)
+-- - neorg
+-- - statusline
+-- - db (dadbod)
+-- nice to have:
+-- - dap.nvim
+-- - search n replace (spectre.nvim/ssr.nvim)
+-- - moveline
+-- - firenvim
