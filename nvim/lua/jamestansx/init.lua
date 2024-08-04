@@ -260,7 +260,7 @@ vim.api.nvim_create_autocmd("BufNewFile", {
     group = grp,
     callback = function()
         vim.api.nvim_create_autocmd("BufWritePre", {
-            group = "Mkdir",
+            group = grp,
             buffer = 0,
             once = true,
             callback = function(args)
