@@ -1,22 +1,48 @@
----------------------------------------------------------------------------------------------------
---- global functions
----------------------------------------------------------------------------------------------------
-_G.create_autocmd = function(ev, opts)
-    if opts.group and vim.fn.exists("#" .. opts.group) == 0 then
-        vim.api.nvim_create_augroup(opts.group, { clear = true })
+-- delay notify until fidget is loaded
+if true then
+    local notifs = {}
+    local orig = vim.notify
+    vim.notify = function(...)
+        table.insert(notifs, {...})
     end
-    vim.api.nvim_create_autocmd(ev, opts)
+
+    local timer = assert(vim.uv.new_timer())
+    local check = assert(vim.uv.new_check())
+    local replay = function()
+        timer:close()
+        check:close()
+        vim.schedule_wrap(function()
+            for _, notif in ipairs(notifs) do
+                vim.notify(unpack(notif))
+            end
+        end)()
+    end
+
+    check:start(function()
+        if package.loaded["fidget"] then
+            replay()
+        end
+    end)
+    timer:start(100, 0, function()
+        if not package.loaded["fidget"] then
+            vim.notify = orig
+        end
+        replay()
+    end)
 end
 
-_G.lspconfig = function(name, config)
+-- local augroup for init.lua
+local grp = vim.api.nvim_create_augroup("init.lua", { clear = true })
+
+local function lspconfig(name, config)
     if config.disable then
         return
     end
 
     config.name = name
-    _G.create_autocmd("FileType", {
+    vim.api.nvim_create_autocmd("FileType", {
+        group = grp,
         pattern = config.filetypes,
-        group = "JamesTan",
         callback = function(args)
             if vim.bo[args.buf].buftype == "nofile" then
                 return
@@ -36,45 +62,6 @@ _G.lspconfig = function(name, config)
     })
 end
 
----------------------------------------------------------------------------------------------------
---- delay notify until fidget.nvim is loaded
----------------------------------------------------------------------------------------------------
-local notifs = {}
-local orig = vim.notify
-vim.notify = function(...)
-    table.insert(notifs, {...})
-end
-
-local timer = assert(vim.uv.new_timer())
-local check = assert(vim.uv.new_check())
-local playback = vim.schedule_wrap(function()
-    for _, notif in ipairs(notifs) do
-        vim.notify(unpack(notif))
-    end
-end)
-local replay = function()
-    timer:stop()
-    timer:close()
-    check:stop()
-    check:close()
-    playback()
-end
-
-check:start(function()
-    if package.loaded["fidget"] then
-        replay()
-    end
-end)
-timer:start(100, 0, function()
-    if not package.loaded["fidget"] then
-        vim.notify = orig
-    end
-    replay()
-end)
-
----------------------------------------------------------------------------------------------------
---- options
----------------------------------------------------------------------------------------------------
 -- disable remote plugin providers
 vim.g.loaded_node_provider = 0
 vim.g.loaded_perl_provider = 0
@@ -84,7 +71,6 @@ vim.g.loaded_python3_provider = 0
 -- leader
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-vim.keymap.set('', "<Space>", "<Nop>")
 
 -- ui
 vim.opt.title = true
@@ -189,8 +175,8 @@ vim.opt.diffopt:append({
 })
 
 -- https://vi.stackexchange.com/a/9366/37072
-_G.create_autocmd("FileType", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("FileType", {
+    group = grp,
     command = [[set fo-=o]],
 })
 
@@ -207,9 +193,6 @@ vim.diagnostic.config({
     },
 })
 
----------------------------------------------------------------------------------------------------
---- keymap
----------------------------------------------------------------------------------------------------
 -- center search result
 vim.keymap.set("n", "n", "nzz")
 vim.keymap.set("n", "N", "Nzz")
@@ -271,20 +254,17 @@ vim.keymap.set("n", "yop", "<Cmd>Pick resume<CR>")
 -- black hole mapping
 -- system clipboard yank/paste
 
----------------------------------------------------------------------------------------------------
---- autocommands
----------------------------------------------------------------------------------------------------
-_G.create_autocmd("TextYankPost", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = grp,
     callback = function()
         vim.highlight.on_yank({ timeout = 50 })
     end,
 })
 
-_G.create_autocmd("BufNewFile", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("BufNewFile", {
+    group = grp,
     callback = function()
-        _G.create_autocmd("BufWritePre", {
+        vim.api.nvim_create_autocmd("BufWritePre", {
             group = "Mkdir",
             buffer = 0,
             once = true,
@@ -299,8 +279,8 @@ _G.create_autocmd("BufNewFile", {
     end,
 })
 
-_G.create_autocmd("BufRead", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("BufRead", {
+    group = grp,
     callback = function()
         local exclude = { "gitcommit", "gitrebase", "help" }
         if vim.tbl_contains(exclude, vim.bo.ft) then
@@ -314,8 +294,8 @@ _G.create_autocmd("BufRead", {
     end,
 })
 
-_G.create_autocmd("BufWritePre", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("BufWritePre", {
+    group = grp,
     pattern = {
         "/tmp/*",
         "gitcommit",
@@ -324,11 +304,8 @@ _G.create_autocmd("BufWritePre", {
     command = [[setlocal noundofile]],
 })
 
----------------------------------------------------------------------------------------------------
---- lsp
----------------------------------------------------------------------------------------------------
-_G.create_autocmd("LspAttach", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = grp,
     callback = function(args)
         local buf = args.buf
         local handlers = vim.lsp.handlers
@@ -341,29 +318,6 @@ _G.create_autocmd("LspAttach", {
         })
     end,
 })
-
-_G.lspconfig("tsserver", {
-    cmd = { "typescript-language-server", "--stdio" },
-    filetypes = { "javascript" },
-    init_options = {
-        hostInfo = "neovim",
-    },
-})
-
----------------------------------------------------------------------------------------------------
---- lazy.nvim
----------------------------------------------------------------------------------------------------
-local lazypath = string.format("%s/lazy/lazy.nvim", vim.fn.stdpath("data"))
-if not vim.uv.fs_stat(lazypath) then
-    vim.fn.system({
-        "git",
-        "clone",
-        "--filter=blob:none",
-        "--branch=stable",
-        "https://github.com/folke/lazy.nvim.git",
-        lazypath,
-    }):wait()
-end
 
 -- TODO:
 --- indent-blankline
@@ -672,7 +626,19 @@ local spec = {
 
 -- startup config
 if package.loaded["lazy"] == nil then
+    local lazypath = string.format("%s/lazy/lazy.nvim", vim.fn.stdpath("data"))
+    if not vim.uv.fs_stat(lazypath) then
+        vim.fn.system({
+            "git",
+            "clone",
+            "--filter=blob:none",
+            "--branch=stable",
+            "https://github.com/folke/lazy.nvim.git",
+            lazypath,
+        }):wait()
+    end
     vim.opt.rtp:prepend(lazypath)
+
     require("lazy").setup({
         spec = spec,
         install = { colorscheme = { "kanagawa-dragon", "retrobox" } },
@@ -699,8 +665,8 @@ if package.loaded["lazy"] == nil then
     -- load shada manually saves about 10ms
     local shada = vim.opt.shada
     vim.opt.shada = ''
-    _G.create_autocmd("User", {
-        group = "JamesTan",
+    vim.api.nvim_create_autocmd("User", {
+        group = grp,
         pattern = "VeryLazy",
         once = true,
         callback = function()

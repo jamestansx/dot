@@ -1,12 +1,9 @@
 vim.wo.colorcolumn = ''
+vim.bo.errorformat = "%f|%l col %c| %m,%f|%l col %c-%k| %m,%f|%l col %c-%k %t%*[^:]| %m"
 
-vim.keymap.set("n", "q", "<CMD>quit!<CR>", {
-    buffer = 0,
-    nowait = true,
-})
-
-_G.create_autocmd("BufEnter", {
-    group = "JamesTan",
+local grp = vim.api.nvim_create_augroup("qf", { clear = true })
+vim.api.nvim_create_autocmd("BufEnter", {
+    group = grp,
     buffer = 0,
     nested = true,
     callback = function()
@@ -15,9 +12,8 @@ _G.create_autocmd("BufEnter", {
         end
     end,
 })
-
-_G.create_autocmd("BufWinEnter", {
-    group = "JamesTan",
+vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = grp,
     buffer = 0,
     once = true,
     command = [[setlocal modifiable]],
@@ -28,5 +24,5 @@ if vim.g.loaded_cfilter == nil then
     vim.g.loaded_cfilter = 1
 end
 
-vim.bo.errorformat = "%f|%l col %c| %m,%f|%l col %c-%k| %m,%f|%l col %c-%k %t%*[^:]| %m"
+vim.keymap.set("n", "q", "<CMD>quit!<CR>", { buffer = 0, nowait = true })
 vim.keymap.set("n", "<C-S>", "<CMD>cgetbuffer|cclose|copen<CR>", { buffer = 0 })
