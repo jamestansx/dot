@@ -11,11 +11,11 @@ if true then
     local replay = function()
         timer:close()
         check:close()
-        vim.schedule_wrap(function()
+        vim.schedule(function()
             for _, notif in ipairs(notifs) do
                 vim.notify(unpack(notif))
             end
-        end)()
+        end)
     end
 
     check:start(function()
@@ -355,13 +355,14 @@ local spec = {
     },
     {
         "andymass/vim-matchup",
-        event = "BufReadPost",
+        -- XXX: lazy load might break vim-matchup for some reason.
+        -- event = "VeryLazy",
         init = function()
             -- XXX: enable both 'popup' and 'deferred' would cause offscreen not able to
             -- show up properly on split windows.
             -- see https://github.com/andymass/vim-matchup/issues/325#issuecomment-1973466079
             vim.g.matchup_matchparen_offscreen = { method = "popup" }
-            vim.g.matchup_matchparen_deferred = 1
+            -- vim.g.matchup_matchparen_deferred = 1
         end,
     },
     {
